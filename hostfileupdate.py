@@ -1,4 +1,5 @@
 __author__ = 'Jason Vanzin'
+import socket #used for IP validation
 import sys #used to get commandline arguments
 import re #used for regular expressions
 
@@ -44,20 +45,23 @@ def validIP(ipaddress):
     """ str -> bool
     Found this on http://stackoverflow.com/questions/319279/how-to-validate-ip-address-in-python
     The function takes the IP address as a string and splits it by ".". It then checks to see if there are 4 items
-    in the list. If not, it's not valid. Next, it makes sure the last two characters are not ".0", which would signify an
-    invalid address. Third it checks the last character to make sure it's not a ".", which would be invalid. Lastly, it
-    checks each item to make sure it's greater than 0 or equal to zero but less than or equal to 255.
+    in the list. If not, it's not valid. Next, it checks the last character to make sure it's not a ".", which would be invalid.
+    Lastly, it checks each item to make sure it's greater than 0 or equal to zero but less than or equal to 255.
+    Note: A subnet mask would be required to truly validate an IP address.
     :param ipaddress:
     :return:
     """
     parts = ipaddress.split(".")
     if len(parts) != 4:
         return False
-    if ipaddress[-2:] == '.0': return False
     if ipaddress[-1] == '.': return False
     for item in parts:
         if not 0 <= int(item) <= 255:
             return False
+    try:
+        socket.inet_pton(socket.AF_INET, ipaddress)
+    except socket.error:
+        return False
     return True
 
 
